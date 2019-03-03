@@ -1,28 +1,39 @@
-FROM alpine
+FROM bitnami/minideb:stretch
 #
 # BUILD:
-#   wget https://raw.githubusercontent.com/thbe/docker-cups/master/Dockerfile
-#   docker build --rm --no-cache -t thbe/cups .
+#   wget https://raw.githubusercontent.com/iwconfig/minideb-cups-iPF5000/master/Dockerfile
+#   docker build --rm --no-cache -t minideb-cups-iPF5000 .
 #
 # USAGE:
-#   wget https://raw.githubusercontent.com/thbe/docker-cups/master/start_cups.sh
+#   wget https://raw.githubusercontent.com/iwconfig/minideb-cups-iPF5000/master/start_cups.sh
 #   ./start_cups.sh
 #
 
 # Set metadata
-LABEL maintainer="Thomas Bendler <project@bendler-net.de>"
-LABEL version="1.3"
-LABEL description="Creates an Alpine container serving a CUPS instance accessible through airplay as well"
+LABEL maintainer="Leonard Högström <snelhingst@gmail.com>"
+LABEL version="1.0"
+LABEL description="Creates an Minideb container serving a CUPS instance accessible through airplay as well, with support for Canon iPF5000 large format printer."
 
 # Set environment
 ENV LANG en_US.UTF-8
 ENV TERM xterm
 
+# Install CUPS/AVAHI, syslogd and 32bit glibc.
+RUN apt-get update && install_packages libc6-i386 cups avahi-daemon inotify-tools inetutils-syslogd
+
+# Create and go to tmp dir
+WORKDIR /tmp/cprint
+
+# Copy CPrint package and module
+COPY w98c4mux.tar.gz w995mux.tar.gz ./
+
+# Install CPrint package and module
+RUN tar --strip-components=1 -xf w98c4mux.tar.gz && tar --strip-components=1 -xf w995mux.tar.gz \
+    && ./setup && ./setup_iPF5000 \
+    && rm -rf /tmp/cprint
+
 # Set workdir
 WORKDIR /opt/cups
-
-# Install CUPS/AVAHI
-RUN apk update --no-cache && apk add --no-cache cups cups-filters avahi inotify-tools
 
 # Copy configuration files
 COPY root /

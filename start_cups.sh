@@ -26,4 +26,4 @@ docker run --detach --restart always \
   --name cups --hostname cups.$(hostname -f | sed -e 's/^[^.]*\.//') \
   -p 137:137/udp -p 139:139/tcp -p 445:445/tcp \
   -p 631:631/tcp -p 5353:5353/udp \
-  thbe/cups
+  minideb-cups-ipf5000
